@@ -62,6 +62,8 @@ class BodyGameRuntime(object):
         self._closed = False
         self._pickedup = False
         self.TAKE_SCREENSHOT = True
+        self.delayTimer = 0
+        self.timerOn = False
 
 
         
@@ -94,7 +96,7 @@ class BodyGameRuntime(object):
         
     def draw_pagh(self, joints, jointPoints):
         
-        self.img = pygame.image.load('PAGG.png')
+        self.img = pygame.image.load('hat.png')
         (width,height) = self.img.get_size()
 
         p1 = (jointPoints[PyKinectV2.JointType_Head].x, jointPoints[PyKinectV2.JointType_Head].y)
@@ -150,8 +152,8 @@ class BodyGameRuntime(object):
 
     def draw_body(self, joints, jointPoints, color):
         #pagh
-        #pagh = pygame.image.load(os.path.join('data', 'PAGG.png'))
-        #self.draw_pagh(joints, jointPoints)
+        #pagh = pygame.image.load(os.path.join('data', 'hat.png'))
+        self.draw_pagh(joints, jointPoints)
 
         # Torso
         self.draw_body_bone(joints, jointPoints, color, PyKinectV2.JointType_Head, PyKinectV2.JointType_Neck);
@@ -312,10 +314,13 @@ class BodyGameRuntime(object):
 
                     if self.checkHand(jointsList):
                         self._closed = True
+                        self.timerOn = False
                     else:
                         self._closed = False
 
                     if (self._closed):
+                       
+
                         #print ("hand closed")
                         (x,y) = self.getHandPos(joints)
                         #self.img = pygame.image.load('xMarksTheSpot.png')
@@ -342,11 +347,19 @@ class BodyGameRuntime(object):
                             self._frame_surface.blit(self.outputIMG, (xOut, yOut))
 
                     if (not self._closed and self._pickedup):
-                        (x,y) = self.getHandPos(joints)
-                        (widthOut, heightOut) = self.outputIMG.get_size()
-                        (xOut, yOut) = (x - widthOut/2, y - heightOut/2)
-                        self._frame_surface.blit(self.outputIMG, (500,500))
-                        self._pickedup = False
+                        if (not self.timerOn):
+                            self.delayTimer = self.masterTime
+                            self.timerOn = True
+                        else:
+                            if (self.masterTime-self.delayTimer > 500):
+                                (x,y) = self.getHandPos(joints)
+                                self.outputIMGPaste = pygame.image.load('output.png')
+                                (widthOut, heightOut) = self.outputIMGPaste.get_size()
+                                (xOut, yOut) = (x - widthOut/2, y - heightOut/2)
+                                self._frame_surface.blit(self.outputIMGPaste, (500,500))
+                                self._pickedup = False
+                                
+                        
 
 
 
@@ -398,3 +411,4 @@ game.run();
 #hand opening starts a timer
 #timer must be open for a second to place.
 #if hand recloses 
+
