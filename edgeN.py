@@ -44,10 +44,32 @@ def cropppedImage(matrix, center, avg, WIDTH, HEIGHT):
 				continue
 			(r1, g1, b1) = (matrix[(i,j)].r, matrix[(i,j)].g, matrix[(i,j)].b)
 			(dr, dg, db) = (abs(matrix[(i, j)].r -  avgR), abs(matrix[(i, j)].g -  avgG), abs(matrix[(i, j)].b -  avgB))
-			if(dr <= 50 and dg <= 50 and db <= 50):
+			dominantColor = max(avgR, avgG, avgB)
+			threshold = {}
+			threshold[avgR] = 50
+			threshold[avgG] = 50
+			threshold[avgB] = 50
+			threshold[dominantColor] = 75
+
+			if(dr <= threshold[avgR] and dg <= threshold[avgG] and db <= threshold[avgB]):
 				selectedObj[(i,j)] = 1
 			else:
 				selectedObj[(i,j)] = 0
+
+	for i in range(r-150, r+150):
+		seen = (False, 0, c-150)
+		for j in range(c-150, c+150):
+			if(i <= 0 or i >= HEIGHT-1 or j <= 0 or j >= WIDTH-1):
+				continue
+			if(selectedObj[(i,j)] == 1):
+				if(seen[0]):
+					for p in range(seen[2], j):
+						selectedObj[(i,p)] = 1
+					seen = (True, seen[1], j)
+				else:
+					seen = (False, seen[1] + 1, j)
+					if(seen[1] >= 4):
+						seen = (True, seen[1], seen[2])
 
 	return selectedObj
 
@@ -82,4 +104,9 @@ def grabObject(backgroundImg, x, y):
 	im.save("output.png", "PNG")
 
 
-#grabObject("bluesclues.jpg", 376, 81)
+# grabObject("../../../Desktop/startPage.jpg", 1154, 514)
+
+
+
+
+
