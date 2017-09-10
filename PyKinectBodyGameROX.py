@@ -64,6 +64,7 @@ class BodyGameRuntime(object):
         self.TAKE_SCREENSHOT = True
         self.delayTimer = 0
         self.timerOn = False
+        self.surfaceList = []
 
 
         
@@ -105,7 +106,7 @@ class BodyGameRuntime(object):
         p4 = (jointPoints[PyKinectV2.JointType_Head].x, jointPoints[PyKinectV2.JointType_Head].y)
 
         
-        (x0,y0) = (p1[0]-width/2,p1[1]-8.5*height/10)
+        (x0,y0) = (p1[0]-width/2,p1[1]-10*height/10)
 
         #surface = self._frame
 
@@ -145,6 +146,16 @@ class BodyGameRuntime(object):
         ## print(ctypes.c_int(PyKinectV2._HandState).value)
 
         return (x, y)
+
+    def pasteObjects(self, surfaceList):
+        (width, height) = self._screen.get_size()
+        
+        for element in surfaceList:
+            print(element)
+            (surface, pos) = element
+            (x,y) = pos
+            (w,h) = surface.get_size()
+            self._screen.blit(surface, (x-2*w,y-h))
 
 
 
@@ -320,7 +331,6 @@ class BodyGameRuntime(object):
 
                     if (self._closed):
                        
-
                         #print ("hand closed")
                         (x,y) = self.getHandPos(joints)
                         #self.img = pygame.image.load('xMarksTheSpot.png')
@@ -329,7 +339,7 @@ class BodyGameRuntime(object):
                         #self._frame_surface.blit(self.img, (x0,y0))
 
                         (widthFrame,heightFrame) = self._frame_surface.get_size()
-                        print("first time=", self._clock.get_rawtime())
+                        #print("first time=", self._clock.get_rawtime())
                         #print("x = ",int(x))
                         #print("y = ",int(y))
                         #print("xF = ",x + widthFrame/2)
@@ -351,12 +361,14 @@ class BodyGameRuntime(object):
                             self.delayTimer = self.masterTime
                             self.timerOn = True
                         else:
-                            if (self.masterTime-self.delayTimer > 500):
+                            if (self.masterTime-self.delayTimer > 700):
                                 (x,y) = self.getHandPos(joints)
-                                self.outputIMGPaste = pygame.image.load('output.png')
-                                (widthOut, heightOut) = self.outputIMGPaste.get_size()
-                                (xOut, yOut) = (x - widthOut/2, y - heightOut/2)
-                                self._frame_surface.blit(self.outputIMGPaste, (500,500))
+                                outputIMGPaste = pygame.image.load('output.png')
+                                #(widthOut, heightOut) = outputIMGPaste.get_size()
+                                #(xOut, yOut) = (x - widthOut/2, y - heightOut/2)
+                                #self._frame_surface.blit(self.outputIMGPaste, (500,500))
+
+                                self.surfaceList.append((outputIMGPaste, (x,y))) # each element is a tuple (surface, (x,y))
                                 self._pickedup = False
                                 
                         
@@ -378,6 +390,7 @@ class BodyGameRuntime(object):
             target_height = int(h_to_w * self._screen.get_width())
             surface_to_draw = pygame.transform.scale(self._frame_surface, (self._screen.get_width(), target_height));
             self._screen.blit(surface_to_draw, (0,0))
+            self.pasteObjects(self.surfaceList)
             surface_to_draw = None
             pygame.display.update()
 
@@ -385,6 +398,7 @@ class BodyGameRuntime(object):
             
 
             # --- Go ahead and update the screen with what we've drawn.
+           
             pygame.display.flip()
 
             
