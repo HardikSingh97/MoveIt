@@ -7,6 +7,8 @@ import _ctypes
 import pygame
 import sys
 
+from edgeN import grabObject
+
 from pickle import dump
 
 if sys.hexversion >= 0x03000000:
@@ -15,7 +17,7 @@ else:
     import thread
 
 # colors for drawing different bodies 
-SKELETON_COLORS = [pygame.color.THECOLORS["sky blue"], 
+SKELETON_COLORS = [pygame.color.THECOLORS["orange"], 
                   pygame.color.THECOLORS["blue"], 
                   pygame.color.THECOLORS["green"], 
                   pygame.color.THECOLORS["orange"], 
@@ -43,6 +45,7 @@ class BodyGameRuntime(object):
 
         # Used to manage how fast the screen updates
         self._clock = pygame.time.Clock()
+        self.masterTime = 0
 
         # Kinect runtime object, we want only color and body frames 
         self._kinect = PyKinectRuntime.PyKinectRuntime(PyKinectV2.FrameSourceTypes_Color | PyKinectV2.FrameSourceTypes_Body)
@@ -53,6 +56,15 @@ class BodyGameRuntime(object):
 
         # here we will store skeleton data 
         self._bodies = None
+        
+        #this will be the latest time save
+        self._lastTime = 0
+        self._closed = False
+        self._pickedup = False
+        self.TAKE_SCREENSHOT = True
+
+
+        
 
 
     def draw_body_bone(self, joints, jointPoints, color, joint0, joint1):
@@ -216,6 +228,8 @@ class BodyGameRuntime(object):
                         PyKinectV2.JointType_SpineBase]
         grandTime = 0
 
+        
+        
 
 
         
@@ -224,6 +238,12 @@ class BodyGameRuntime(object):
         while not self._done:
             # --- Main event loop
 
+            #print(self.masterTime)
+            if (self.masterTime >= 1500 and self.TAKE_SCREENSHOT):
+                ##print (PyKinectV2.HandState_NotTracked)
+                ##if (TAKE_SCREENSHOT):
+                pygame.image.save(self._frame_surface, "startPage.jpeg")
+                self.TAKE_SCREENSHOT = False
             for event in pygame.event.get(): # User did something
                 if event.type == pygame.QUIT: # If user clicked close
                     #print(mainDict[11])  # testing dict values by printing
@@ -279,16 +299,17 @@ class BodyGameRuntime(object):
 
 
 
-                    TAKE_SCREENSHOT = True
-                    ##print (PyKinectV2.HandState_NotTracked)
-                    if (TAKE_SCREENSHOT):
-                        pygame.image.save(self._frame_surface, "startPage.jpeg")
-                        TAKE_SCREENSHOT = False
+                    
 
+                   
                    
 
                     #if (abs(leftTip-leftWrist) <= delta):
                     #   print("Peepadoo")
+
+
+
+
 
                     if (self.checkHand(jointsList)):
                         #print ("hand closed")
@@ -297,6 +318,31 @@ class BodyGameRuntime(object):
                         (width,height) = self.img.get_size()
                         (x0,y0) = (x-width/2,y-height/2)
                         self._frame_surface.blit(self.img, (x0,y0))
+
+                        (widthFrame,heightFrame) = self._frame_surface.get_size()
+                        print("first time=", self._clock.get_rawtime())
+                        #print("x = ",int(x))
+                        #print("y = ",int(y))
+                        #print("xF = ",x + widthFrame/2)
+                        #print("yF = ",heightFrame/2 - y)
+
+                        if (not self._pickedup):
+                            grabObject("startPage.jpeg",int(x),int(y))
+                            self._pickedup = True
+
+                        #print("second time=",self._clock.get_rawtime())
+
+                        self.outputIMG = pygame.image.load('output.png')
+                        (widthOut, heightOut) = self.outputIMG.get_size()
+                        (xOut, yOut) = (x - widthOut/2, y - heightOut/2)
+                        self._frame_surface.blit(self.outputIMG, (xOut, yOut))
+
+                        
+
+
+
+
+
        
                         
                     
@@ -325,6 +371,7 @@ class BodyGameRuntime(object):
 
 
             # --- Limit to 60 frames per second
+            self.masterTime += self._clock.get_rawtime()
             self._clock.tick(20)
 
 
@@ -337,3 +384,8 @@ __main__ = "Kinect v2 Body Game"
 game = BodyGameRuntime();
 game.run();
 
+
+
+#hand opening starts a timer
+#timer must be open for a second to place.
+#if hand recloses 

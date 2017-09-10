@@ -1,7 +1,7 @@
 from PIL import Image
 import random
 import math
-import Queue
+#import Queue
 
 
 
@@ -12,16 +12,17 @@ class pixel:
        self.g = g
        self.b = b
 
-def createMatrix(nums, image, WIDTH, HEIGHT, (pr, pc)):
-	matrix = {}
-	for r in range(pr-150, pr+150):
-		for c in range(pc-150, pc+150):
-			if(r <= 0 or r >= HEIGHT-1 or c <= 0 or c >= WIDTH-1):
-				continue
-			p = nums[WIDTH*r + c]
-			matrix[(r,c)] = pixel(p[0], p[1], p[2])
+def createMatrix(nums, image, WIDTH, HEIGHT, pt):
+    (pr, pc) = pt
+    matrix = {}
+    for r in range(pr-150, pr+150):
+        for c in range(pc-150, pc+150):
+            if(r <= 0 or r >= HEIGHT-1 or c <= 0 or c >= WIDTH-1):
+                continue
+            p = nums[WIDTH*r + c]
+            matrix[(r,c)] = pixel(p[0], p[1], p[2])
 
-	return matrix
+    return matrix
 
 def calculateAverageColor(matrix, r, c):
 	(avgR, avgG, avgB) = (0, 0, 0)
@@ -47,20 +48,6 @@ def cropppedImage(matrix, center, avg, WIDTH, HEIGHT):
 				selectedObj[(i,j)] = 1
 			else:
 				selectedObj[(i,j)] = 0
-
-	for i in range(r-150, r+150):
-		seen = (False, -1)
-		for j in range(c-150, c+150):
-			if(i <= 0 or i >= HEIGHT-1 or j <= 0 or j >= WIDTH-1):
-				continue
-			if(selectedObj[(i,j)] == 1):
-				if(seen[0] == True):
-					for p in range(seen[1], j):
-						selectedObj[(i,p)] = 1
-					seen = (True, j)
-				else:
-					seen = (True, j)
-				
 
 	return selectedObj
 
@@ -92,7 +79,7 @@ def grabObject(backgroundImg, x, y):
 				(red, green, blue, a) = (100, 100, 100, 0)
 			pix[c - (x-150), r - (y-150)] = (red, green, blue, a)
 
-	im.save("bluesclues.png", "PNG")
+	im.save("output.png", "PNG")
 
 
-grabObject("bluesclues.jpg", 376, 81)
+#grabObject("bluesclues.jpg", 376, 81)
