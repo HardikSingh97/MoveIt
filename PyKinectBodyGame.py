@@ -79,7 +79,7 @@ class BodyGameRuntime(object):
             pygame.draw.line(self._frame_surface, color, start, end, 8)
         except: # need to catch it due to possible invalid positions (with inf)
             pass
-
+        
     def draw_pagh(self, joints, jointPoints):
         
         self.img = pygame.image.load('PAGG.png')
@@ -104,7 +104,7 @@ class BodyGameRuntime(object):
             pass
 
     def checkHand(self, jointsList):
-        delta = 0.05
+        delta = 0.11
         leftWristX = jointsList[PyKinectV2.JointType_WristLeft].Position.x
         leftWristY = jointsList[PyKinectV2.JointType_WristLeft].Position.y
         (x1,x2) = (leftWristX - delta, leftWristX + delta)
@@ -128,6 +128,7 @@ class BodyGameRuntime(object):
         x = jointPoints[PyKinectV2.JointType_HandLeft].x
         y = jointPoints[PyKinectV2.JointType_HandLeft].y
 
+        print(ctypes.c_int(PyKinectV2._HandState).value)
 
         return (x, y)
 
@@ -215,17 +216,22 @@ class BodyGameRuntime(object):
                         PyKinectV2.JointType_SpineBase]
         grandTime = 0
 
+
+
+        
+
         # -------- Main Program Loosp -----------
         while not self._done:
             # --- Main event loop
+
             for event in pygame.event.get(): # User did something
                 if event.type == pygame.QUIT: # If user clicked close
-                    print(mainDict[11])  # testing dict values by printing
-                    print()
-                    print(mainDict[99])
-                    fout = open('saveFile.pkl', 'wb') #creating save file #pickledump
-                    dump( mainDict, fout, protocol = 2)
-                    fout.close()
+                    #print(mainDict[11])  # testing dict values by printing
+                    #print()
+                    #print(mainDict[99])
+                    #fout = open('saveFile.pkl', 'wb') #creating save file #pickledump
+                    #dump( mainDict, fout, protocol = 2)
+                    #fout.close()
                     self._done = True # Flag that we are done so we exit this loop
 
                 elif event.type == pygame.VIDEORESIZE: # window resized
@@ -272,23 +278,26 @@ class BodyGameRuntime(object):
                     self.draw_body(joints, joint_points, SKELETON_COLORS[i])
 
 
-                    TAKE_SCREENSHOT = True
-                    ##print (PyKinectV2.HandState_NotTracked)
-                                       
+                   
 
                     #if (abs(leftTip-leftWrist) <= delta):
-                    #    print("Peepadoo")
+                    #   print("Peepadoo")
 
                     if (self.checkHand(jointsList)):
-                        print ("hand closed")
+                        #print ("hand closed")
                         (x,y) = self.getHandPos(joints)
                         self.img = pygame.image.load('xMarksTheSpot.png')
                         (width,height) = self.img.get_size()
                         (x0,y0) = (x-width/2,y-height/2)
                         self._frame_surface.blit(self.img, (x0,y0))
        
-                        #pygame.image.save(self._frame_surface, "test.jpeg")
+                        
+                    TAKE_SCREENSHOT = True
+                    ##print (PyKinectV2.HandState_NotTracked)
+                    if (TAKE_SCREENSHOT):
+                        pygame.image.save(self._frame_surface, "startPage.jpeg")
                         TAKE_SCREENSHOT = False
+                        
 
 
 
