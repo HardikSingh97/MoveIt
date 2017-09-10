@@ -310,14 +310,18 @@ class BodyGameRuntime(object):
 
 
 
+                    if self.checkHand(jointsList):
+                        self._closed = True
+                    else:
+                        self._closed = False
 
-                    if (self.checkHand(jointsList)):
+                    if (self._closed):
                         #print ("hand closed")
                         (x,y) = self.getHandPos(joints)
-                        self.img = pygame.image.load('xMarksTheSpot.png')
-                        (width,height) = self.img.get_size()
-                        (x0,y0) = (x-width/2,y-height/2)
-                        self._frame_surface.blit(self.img, (x0,y0))
+                        #self.img = pygame.image.load('xMarksTheSpot.png')
+                        #(width,height) = self.img.get_size()
+                        #(x0,y0) = (x-width/2,y-height/2)
+                        #self._frame_surface.blit(self.img, (x0,y0))
 
                         (widthFrame,heightFrame) = self._frame_surface.get_size()
                         print("first time=", self._clock.get_rawtime())
@@ -331,13 +335,18 @@ class BodyGameRuntime(object):
                             self._pickedup = True
 
                         #print("second time=",self._clock.get_rawtime())
+                        else:
+                            self.outputIMG = pygame.image.load('output.png')
+                            (widthOut, heightOut) = self.outputIMG.get_size()
+                            (xOut, yOut) = (x - widthOut/2, y - heightOut/2)
+                            self._frame_surface.blit(self.outputIMG, (xOut, yOut))
 
-                        self.outputIMG = pygame.image.load('output.png')
+                    if (not self._closed and self._pickedup):
+                        (x,y) = self.getHandPos(joints)
                         (widthOut, heightOut) = self.outputIMG.get_size()
                         (xOut, yOut) = (x - widthOut/2, y - heightOut/2)
-                        self._frame_surface.blit(self.outputIMG, (xOut, yOut))
-
-                        
+                        self._frame_surface.blit(self.outputIMG, (500,500))
+                        self._pickedup = False
 
 
 
