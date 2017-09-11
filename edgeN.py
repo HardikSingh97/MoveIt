@@ -49,7 +49,7 @@ def cropppedImage(matrix, center, avg, WIDTH, HEIGHT):
 			threshold[avgR] = 50
 			threshold[avgG] = 50
 			threshold[avgB] = 50
-			threshold[dominantColor] = 75
+			threshold[dominantColor] = 65
 
 			if(dr <= threshold[avgR] and dg <= threshold[avgG] and db <= threshold[avgB]):
 				selectedObj[(i,j)] = 1
